@@ -7,22 +7,20 @@ import torch.nn.functional as F
 from mnist1d.data import get_dataset, get_dataset_args
 from torch.utils.data import TensorDataset, DataLoader
 
-# ==========================================
-# 0. CONFIGURAZIONE
-# ==========================================
+#config 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-SEED = 42
-LABEL_NOISE = 0.20        # 20% Noise (Cruciale per Double Descent)
+SEED = 1100
+LABEL_NOISE = 0.20        # 20% Noise 
 BATCH_SIZE = 128
 
-# Epoche (ridotte leggermente per far girare tutto in tempo ragionevole, aumenta se hai GPU potente)
+#epochs
 EPOCHS_MODEL_WISE = 3000  
 EPOCHS_EPOCH_WISE = 15000 
 EPOCHS_GEN_NC = 3000      
 
-# Parametri Larghezza (Width k)
+# width configurations for model-wise experiment (ResNet & CNN)
 WIDTHS = [2, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64] 
 
 torch.manual_seed(SEED)
@@ -57,10 +55,8 @@ def get_mnist1d_data(label_noise_prob=0.15, batch_size=128):
     return train_loader, test_loader, x_train, y_train
 
 # ==========================================
-# 2. MODELLI (RESNET & CNN)
+# 2. MODELS (RESNET & CNN)
 # ==========================================
-
-# --- Modello A: ResNet1D ---
 class ResNetBlock1D(nn.Module):
     def __init__(self, channels):
         super().__init__()
@@ -95,12 +91,10 @@ class ResNet1D(nn.Module):
         self.layer2 = ResNetBlock1D(width)
         self.pool = nn.AdaptiveAvgPool1d(1)
         
-        # Proiezione opzionale per Generalized NC
         self.projector = None
         if feature_dim is not None and feature_dim != width:
             self.projector = nn.Linear(width, feature_dim, bias=False)
             
-        # Classificatore (Bias=False per teoria NC pura)
         self.classifier = nn.Linear(self.output_dim, num_classes, bias=False)
 
     def forward(self, x):
@@ -116,11 +110,9 @@ class ResNet1D(nn.Module):
         logits = self.classifier(h)
         return logits, h
 
-# --- Modello B: Standard CNN (Bilanciata) ---
 class StandardCNN1D(nn.Module):
     def __init__(self, width=16, num_classes=10):
         super().__init__()
-        # Crescita [k, k, 2k, 2k] per evitare esplosione parametri
         self.features = nn.Sequential(
             nn.Conv1d(1, width, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm1d(width), nn.ReLU(), nn.MaxPool1d(2),
@@ -132,7 +124,7 @@ class StandardCNN1D(nn.Module):
             nn.BatchNorm1d(width*2), nn.ReLU(),
         )
         self.pool = nn.AdaptiveAvgPool1d(1)
-        self.classifier = nn.Linear(width*2, num_classes, bias=False) # Bias False per NC
+        self.classifier = nn.Linear(width*2, num_classes, bias=False)
 
     def forward(self, x):
         if x.dim() == 2: x = x.unsqueeze(1)
@@ -146,20 +138,19 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 # ==========================================
-# 3. METRICHE NC (1-4)
+# 3. NC METRICS
 # ==========================================
 def compute_nc_metrics(model, x_data, y_data):
     model.eval()
     K = 10
     with torch.no_grad():
         logits, features = model(x_data)
-        W = model.classifier.weight # [K, d]
+        W = model.classifier.weight
         
     features = features.cpu().double()
     labels = y_data.cpu()
     W = W.cpu().double()
     
-    # 1. Medie
     global_mean = torch.mean(features, dim=0)
     class_means = []
     for c in range(K):
@@ -168,9 +159,7 @@ def compute_nc_metrics(model, x_data, y_data):
         else: class_means.append(torch.mean(features[indices], dim=0))
     class_means = torch.stack(class_means)
     
-    # NC1: Variability
-    within_scatter = 0
-    between_scatter = 0
+    within_scatter = 0; between_scatter = 0
     for c in range(K):
         indices = (labels == c)
         if indices.sum() == 0: continue
@@ -180,19 +169,16 @@ def compute_nc_metrics(model, x_data, y_data):
         between_scatter += indices.sum() * torch.trace(diff_b @ diff_b.T)
     nc1 = within_scatter / (between_scatter + 1e-9)
     
-    # NC2: ETF
     M_centered = class_means - global_mean
     M_normalized = M_centered / (torch.norm(M_centered, dim=1, keepdim=True) + 1e-9)
     G_empirical = M_normalized @ M_normalized.T
     G_ideal = (torch.eye(K) - 1.0/K) * (K / (K-1.0))
     nc2 = torch.norm(G_empirical - G_ideal, p='fro').item()
     
-    # NC3: Self-Duality
     W_norm = W / (torch.norm(W, dim=1, keepdim=True) + 1e-9)
     M_norm = class_means / (torch.norm(class_means, dim=1, keepdim=True) + 1e-9)
     nc3 = torch.norm(W_norm - M_norm, p='fro').item()
     
-    # NC4: NCC
     dists = []
     for c in range(K):
         d = torch.norm(features - class_means[c], dim=1)**2
@@ -224,7 +210,7 @@ def evaluate_error(model, loader):
     return 1.0 - (correct / total)
 
 # ==========================================
-# 4. EXP 1: MODEL-WISE (CNN & ResNet)
+# 4. EXP 1: MODEL-WISE
 # ==========================================
 def run_model_wise_complete(train_loader, test_loader, x_train, y_train):
     print("\n" + "="*50)
@@ -233,27 +219,24 @@ def run_model_wise_complete(train_loader, test_loader, x_train, y_train):
     
     results = {} 
     
-    # Definiamo le configurazioni da testare
-    # Tu volevi vedere la differenza tra SGD e Adam per capire NC
     configs = [
         ('ResNet', 'Adam', ResNet1D),
         ('ResNet', 'SGD', ResNet1D),
-        ('CNN', 'SGD', StandardCNN1D), # CNN con SGD è il caso classico del paper
-        ('CNN', 'Adam', StandardCNN1D)  # CNN con Adam per vedere se NC emerge comunque
-    
+        ('CNN', 'SGD', StandardCNN1D),
+        ('CNN', 'Adam', StandardCNN1D)
     ]
     
     for model_name, opt_name, ModelClass in configs:
         key = f"{model_name}_{opt_name}"
         print(f"\n--- Running {key} ---")
         
-        metrics = {'params': [], 'test_err': [], 'NC1': [], 'NC2': []}
+        metrics = {'params': [], 'test_err': [], 
+                   'NC1': [], 'NC2': [], 'NC3': [], 'NC4': []}
         
         for w in WIDTHS:
             model = ModelClass(width=w).to(device)
             n_params = count_parameters(model)
             
-            # Setup Optimizer
             if opt_name == 'SGD':
                 optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
                 scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS_MODEL_WISE)
@@ -263,36 +246,37 @@ def run_model_wise_complete(train_loader, test_loader, x_train, y_train):
                 
             criterion = nn.CrossEntropyLoss()
             
-            # Train Loop
             for epoch in range(EPOCHS_MODEL_WISE):
                 train_one_epoch(model, optimizer, train_loader, criterion)
                 if scheduler: scheduler.step()
                 
-            # Calc Metrics
             te_err = evaluate_error(model, test_loader)
             nc_res = compute_nc_metrics(model, x_train, y_train)
             
             metrics['params'].append(n_params)
             metrics['test_err'].append(te_err)
+            
+            
             metrics['NC1'].append(nc_res['NC1'])
             metrics['NC2'].append(nc_res['NC2'])
+            metrics['NC3'].append(nc_res['NC3'])
+            metrics['NC4'].append(nc_res['NC4'])
             
-            print(f"W={w:2d} | Params={n_params} | Err={te_err:.3f} | NC1={nc_res['NC1']:.2e} | NC2={nc_res['NC2']:.2f}")
+            
+            print(f"W={w:2d} | Prms={n_params:6d} | Err={te_err:.3f} | NC1={nc_res['NC1']:.2e} | NC2={nc_res['NC2']:.2f} | NC3={nc_res['NC3']:.2f} | NC4={nc_res['NC4']:.2f}")
             
         results[key] = metrics
         
     return results
 
 # ==========================================
-# 5. EXP 2: EPOCH-WISE (Solo ResNet per stabilità)
+# 5. EXP 2: EPOCH-WISE
 # ==========================================
 def run_epoch_wise_dynamics(train_loader, test_loader, x_train, y_train):
     print("\n" + "="*50)
     print("EXP 2: EPOCH-WISE DYNAMICS")
     print("="*50)
     
-    # Scegliamo width critica e large basandoci su exp precedenti
-    # Width 12 è spesso critica, Width 64 è large
     configs = [('Critical', 12), ('Large', 64)]
     history = {}
     
@@ -322,7 +306,7 @@ def run_epoch_wise_dynamics(train_loader, test_loader, x_train, y_train):
     return history
 
 # ==========================================
-# 6. EXP 3: GENERALIZED NC (Feature Dim < K)
+# 6. EXP 3: GENERALIZED NC
 # ==========================================
 def run_generalized_nc(train_loader, x_train, y_train):
     print("\n" + "="*50)
@@ -333,11 +317,9 @@ def run_generalized_nc(train_loader, x_train, y_train):
     metrics = {'d': [], 'NC1': [], 'NC2': []}
     
     for d in DIMS:
-        # Usiamo ResNet width 64 (Large) ma strozziamo output dim
         model = ResNet1D(width=64, feature_dim=d).to(device)
         optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
         
-        # Train
         for epoch in range(EPOCHS_GEN_NC):
             train_one_epoch(model, optimizer, train_loader, nn.CrossEntropyLoss())
             
@@ -353,109 +335,78 @@ def run_generalized_nc(train_loader, x_train, y_train):
 # ==========================================
 # MAIN & PLOTTING
 # ==========================================
-
 if __name__ == "__main__":
-    # 1. Carica Dati
     train_loader, test_loader, x_train, y_train = get_mnist1d_data(label_noise_prob=LABEL_NOISE)
     
-    # 2. Esegui Esperimenti (Calcola tutto)
     res_model = run_model_wise_complete(train_loader, test_loader, x_train, y_train)
     res_epoch = run_epoch_wise_dynamics(train_loader, test_loader, x_train, y_train)
     res_gen = run_generalized_nc(train_loader, x_train, y_train)
     
-    # 3. Visualizzazione Completa (2 righe x 4 colonne)
+    # --- PLOTTING ---
     fig = plt.figure(figsize=(24, 12), constrained_layout=True)
     gs = fig.add_gridspec(2, 4)
+    fig.suptitle("Analisi Completa: Double Descent & Neural Collapse", fontsize=20)
     
-    # --- RIGA 1: EXP 1 (Model-wise: Error + NC1 + NC2 + NC3) ---
     
-    # 1. Test Error
     ax1 = fig.add_subplot(gs[0, 0])
-    ax1.set_title("Exp 1: Double Descent (Test Error)")
-    ax1.set_xlabel("Params (Log)")
-    ax1.set_ylabel("Error Rate")
-    ax1.set_xscale('log')
-    ax1.grid(True, alpha=0.3)
+    ax1.set_title("Exp 1: Test Error")
+    ax1.set_xlabel("Params (Log)"); ax1.set_ylabel("Error Rate")
+    ax1.set_xscale('log'); ax1.grid(True, alpha=0.3)
     for key, val in res_model.items():
         style = 'o-' if 'ResNet' in key else 's-'
         ax1.plot(val['params'], val['test_err'], style, label=key)
     ax1.legend()
 
-    # 2. NC1 (Variability)
     ax2 = fig.add_subplot(gs[0, 1])
-    ax2.set_title("Exp 1: NC1 (Variability Collapse)")
-    ax2.set_xlabel("Params (Log)")
-    ax2.set_ylabel("NC1 (Log)")
-    ax2.set_xscale('log')
-    ax2.set_yscale('log')
-    ax2.grid(True, alpha=0.3)
+    ax2.set_title("Exp 1: NC1 (Variability)")
+    ax2.set_xlabel("Params (Log)"); ax2.set_ylabel("NC1 (Log)")
+    ax2.set_xscale('log'); ax2.set_yscale('log'); ax2.grid(True, alpha=0.3)
     for key, val in res_model.items():
-        style = 'o--' if 'ResNet' in key else 's--'
-        ax2.plot(val['params'], val['NC1'], style, label=key)
+        ax2.plot(val['params'], val['NC1'], 'o--', label=key)
     
-    # 3. NC2 (Simplex ETF)
     ax3 = fig.add_subplot(gs[0, 2])
     ax3.set_title("Exp 1: NC2 (Simplex ETF)")
-    ax3.set_xlabel("Params (Log)")
-    ax3.set_ylabel("NC2 Metric")
-    ax3.set_xscale('log')
-    ax3.grid(True, alpha=0.3)
+    ax3.set_xlabel("Params (Log)"); ax3.set_ylabel("NC2 Metric")
+    ax3.set_xscale('log'); ax3.grid(True, alpha=0.3)
     for key, val in res_model.items():
-        style = 'o--' if 'ResNet' in key else 's--'
-        ax3.plot(val['params'], val['NC2'], style, label=key)
+        ax3.plot(val['params'], val['NC2'], 'o--', label=key)
 
-    # 4. NC3 (Self-Duality - Pesi vs Feature)
     ax4 = fig.add_subplot(gs[0, 3])
-    ax4.set_title("Exp 1: NC3 (W aligns with Means)")
-    ax4.set_xlabel("Params (Log)")
-    ax4.set_ylabel("NC3 Metric")
-    ax4.set_xscale('log')
-    ax4.grid(True, alpha=0.3)
+    ax4.set_title("Exp 1: NC3 (Self-Duality)")
+    ax4.set_xlabel("Params (Log)"); ax4.set_ylabel("NC3 Metric")
+    ax4.set_xscale('log'); ax4.grid(True, alpha=0.3)
     for key, val in res_model.items():
-        style = 'o--' if 'ResNet' in key else 's--'
-        ax4.plot(val['params'], val['NC3'], style, label=key)
+        ax4.plot(val['params'], val['NC3'], 'o--', label=key)
 
-    # --- RIGA 2: ALTRE ANALISI (NC4 + Epoch-wise + Generalized) ---
-
-    # 5. NC4 (NCC Match - Model wise)
+    
     ax5 = fig.add_subplot(gs[1, 0])
     ax5.set_title("Exp 1: NC4 (NCC Mismatch)")
-    ax5.set_xlabel("Params (Log)")
-    ax5.set_ylabel("Mismatch Rate")
-    ax5.set_xscale('log')
-    ax5.grid(True, alpha=0.3)
+    ax5.set_xlabel("Params (Log)"); ax5.set_ylabel("Mismatch Rate")
+    ax5.set_xscale('log'); ax5.grid(True, alpha=0.3)
     for key, val in res_model.items():
-        style = 'o--' if 'ResNet' in key else 's--'
-        ax5.plot(val['params'], val['NC4'], style, label=key)
-    ax5.text(0.5, 0.5, "0 = Perfect Match with NCC", transform=ax5.transAxes, ha='center', alpha=0.5)
+        ax5.plot(val['params'], val['NC4'], 'o--', label=key)
+    ax5.text(0.5, 0.5, "0 = Perfect Match", transform=ax5.transAxes, ha='center', alpha=0.5)
 
-    # 6. Epoch-wise Dynamics (Exp 2)
     ax6 = fig.add_subplot(gs[1, 1])
-    ax6.set_title("Exp 2: Epoch-wise (Benign Overfitting)")
-    ax6.set_xlabel("Epochs (Log)")
-    ax6.set_ylabel("Test Error")
-    ax6.set_xscale('log')
-    ax6.grid(True, alpha=0.3)
+    ax6.set_title("Exp 2: Epoch-wise")
+    ax6.set_xlabel("Epochs (Log)"); ax6.set_ylabel("Test Error")
+    ax6.set_xscale('log'); ax6.grid(True, alpha=0.3)
     for name, hist in res_epoch.items():
         ax6.plot(hist['epoch'], hist['test_err'], label=name)
     ax6.legend()
 
-    # 7. Generalized NC1 (Exp 3)
     ax7 = fig.add_subplot(gs[1, 2])
-    ax7.set_title("Exp 3: Gen NC (NC1 vs Dim)")
-    ax7.set_xlabel("Feature Dim d")
-    ax7.set_yscale('log')
-    ax7.grid(True, alpha=0.3)
-    ax7.plot(res_gen['d'], res_gen['NC1'], '^-', color='green', label='NC1')
-    ax7.legend()
+    ax7.set_title("Exp 3: Gen NC (NC1)")
+    ax7.set_xlabel("Feature Dim d"); ax7.set_ylabel("NC1 (Log)")
+    ax7.set_yscale('log'); ax7.grid(True, alpha=0.3)
+    ax7.plot(res_gen['d'], res_gen['NC1'], '^-', color='green')
+    ax7.axvline(x=9, color='red', linestyle='--', label='K-1')
 
-    # 8. Generalized NC2 (Exp 3)
     ax8 = fig.add_subplot(gs[1, 3])
-    ax8.set_title("Exp 3: Gen NC (NC2 vs Dim)")
-    ax8.set_xlabel("Feature Dim d")
+    ax8.set_title("Exp 3: Gen NC (NC2)")
+    ax8.set_xlabel("Feature Dim d"); ax8.set_ylabel("NC2")
     ax8.grid(True, alpha=0.3)
-    ax8.plot(res_gen['d'], res_gen['NC2'], 'x-', color='purple', label='NC2')
+    ax8.plot(res_gen['d'], res_gen['NC2'], 'x-', color='purple')
     ax8.axvline(x=9, color='red', linestyle='--', label='K-1 Bound')
-    ax8.legend()
-
+    
     plt.show()
