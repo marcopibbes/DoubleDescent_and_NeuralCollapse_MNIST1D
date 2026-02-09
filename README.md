@@ -13,7 +13,7 @@ The code (`doubledescent.py`) performs three distinct experiments in a single ru
 ### 1. Model-wise Double Descent
 *   **Goal:** Observe the test error peak at the interpolation threshold ($N_{params} \approx N_{samples}$) and the subsequent descent.
 *   **Setup:** Compares **ResNet1D (Adam)** vs **Standard CNN (SGD)** with varying widths ($k$).
-*   **Metrics:** Test Error, Train Error, NC1 (Variability), NC2 (Simplex ETF).
+*   **Metrics:** Test Error, Train Error, NC1 (Variability), NC2 (Simplex ETF), NC3, NC4.
 
 ### 2. Epoch-wise Double Descent
 *   **Goal:** Observe "Benign Overfitting" over long training times (20k epochs).
