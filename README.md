@@ -1,4 +1,4 @@
-# 🧠 Double Descent · Neural Collapse · CKA
+#  Double Descent · Neural Collapse · CKA
 ### An Experimental Analysis on MNIST-1D
 
 <p align="center">

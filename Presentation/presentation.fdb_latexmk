@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1772218469.55656 "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Presentation/presentation.tex" "presentation.pdf" "presentation" 1772218471.06248 0
+["pdflatex"] 1772219048.03165 "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Presentation/presentation.tex" "presentation.pdf" "presentation" 1772219049.51322 0
   "/etc/texmf/web2c/texmf.cnf" 1771069239.02269 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Presentation/presentation.tex" 1772218469.4066 13087 8f4baf028a842707432f72bd10dfafe7 ""
+  "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Presentation/presentation.tex" 1772219047.88353 13004 67889f9f611bf3f72097ab52a1b396e5 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -216,11 +216,11 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1771069250.20074 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1771069327 8215083 29a9c2bc7e80a3b78660bdf208ad892b ""
   "neural_collapse_cka_results.png" 1772218466.46643 830517 5e97fef2d22f628de8c976038d39a4d0 ""
-  "presentation.aux" 1772218471.00948 3901 778bdcb4c790fd2da4d995e8c12ea19d "pdflatex"
-  "presentation.nav" 1772218471.01029 2381 d2c9bb592f38e2207759c4ebdeb231e9 "pdflatex"
-  "presentation.out" 1772218471.00971 860 f415b05d8dbb3b5823b9a3be0ac99d18 "pdflatex"
-  "presentation.tex" 1772218469.4066 13087 8f4baf028a842707432f72bd10dfafe7 ""
-  "presentation.toc" 1772218471.01029 361 8fc1ff9e1b39c7dfb02fa808c207100f "pdflatex"
+  "presentation.aux" 1772219049.45931 3901 778bdcb4c790fd2da4d995e8c12ea19d "pdflatex"
+  "presentation.nav" 1772219049.46009 2381 d2c9bb592f38e2207759c4ebdeb231e9 "pdflatex"
+  "presentation.out" 1772219049.45952 860 f415b05d8dbb3b5823b9a3be0ac99d18 "pdflatex"
+  "presentation.tex" 1772219047.88353 13004 67889f9f611bf3f72097ab52a1b396e5 ""
+  "presentation.toc" 1772219049.46009 361 8fc1ff9e1b39c7dfb02fa808c207100f "pdflatex"
   (generated)
   "presentation.aux"
   "presentation.log"
