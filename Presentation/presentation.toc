@@ -1,0 +1,7 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\beamer@sectionintoc {1}{Introduzione Teorica}{3}{0}{1}
+\beamer@sectionintoc {2}{Setup Sperimentale}{5}{0}{2}
+\beamer@sectionintoc {3}{Analisi dei Risultati (Exp 1, 2, 3)}{6}{0}{3}
+\beamer@sectionintoc {4}{Analisi delle Rappresentazioni (CKA)}{9}{0}{4}
+\beamer@sectionintoc {5}{Conclusioni}{13}{0}{5}
