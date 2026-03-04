@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1772218199.09226 "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Report/report.tex" "report.pdf" "report" 1772218200.19771 0
+["pdflatex"] 1772226093.51628 "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Report/report.tex" "report.pdf" "report" 1772226094.59866 0
   "/etc/texmf/web2c/texmf.cnf" 1771069239.02269 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Report/report.tex" 1772218186.69357 10521 17ac9f70a501ede24b531d92231158cc ""
+  "/home/marco/Desktop/University/Computer Vision & Intelligent Media Recognition/Project/Report/report.tex" 1772226093.36387 10506 f347657ae13e04563dffab0759c9de16 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -107,9 +107,9 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1771069250.20074 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1771069327 8215083 29a9c2bc7e80a3b78660bdf208ad892b ""
   "neural_collapse_cka_results.png" 1772218195.45089 830517 5e97fef2d22f628de8c976038d39a4d0 ""
-  "report.aux" 1772218200.15592 3094 44beaa6bdeffda514dd75325e8d983d0 "pdflatex"
-  "report.out" 1772218200.15691 2089 fabedc92a46d957bf53a0ef232c69a02 "pdflatex"
-  "report.tex" 1772218186.69357 10521 17ac9f70a501ede24b531d92231158cc ""
+  "report.aux" 1772226094.56194 3094 44beaa6bdeffda514dd75325e8d983d0 "pdflatex"
+  "report.out" 1772226094.56294 2089 fabedc92a46d957bf53a0ef232c69a02 "pdflatex"
+  "report.tex" 1772226093.36387 10506 f347657ae13e04563dffab0759c9de16 ""
   (generated)
   "report.aux"
   "report.log"

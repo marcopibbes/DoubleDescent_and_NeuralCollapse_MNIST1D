@@ -5,52 +5,45 @@
 \usepackage{amsmath, amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{tikz}
+\usepackage{xcolor}
 
 % --- COLORI UNIVERSITÀ DI FIRENZE ---
-% Il blu istituzionale UniFi è approssimativamente RGB(0, 51, 102) o HEX #003366
 \definecolor{UniFiBlue}{RGB}{0, 51, 102}
 \definecolor{UniFiLightBlue}{RGB}{204, 220, 235}
-\definecolor{UniFiOrange}{RGB}{237, 107, 6} % Colore di accento opzionale
+\definecolor{UniFiOrange}{RGB}{237, 107, 6}
 
 % --- SETUP TEMA BEAMER ---
 \usetheme{Madrid}
 \usecolortheme[named=UniFiBlue]{structure}
 
-% Personalizzazione header/footer
-\setbeamertemplate{navigation symbols}{} % Rimuove i simboli di navigazione
+\setbeamertemplate{navigation symbols}{}
 \setbeamercolor{palette primary}{bg=UniFiBlue,fg=white}
 \setbeamercolor{palette secondary}{bg=UniFiBlue!80!black,fg=white}
 \setbeamercolor{palette tertiary}{bg=UniFiBlue!60!black,fg=white}
-\setbeamercolor{title}{fg=UniFiBlue}
-\setbeamercolor{frametitle}{bg=UniFiBlue, fg=white}
-\setbeamercolor{item projected}{bg=UniFiBlue}
 
-% Font leggermente più moderni
+\setbeamercolor{title}{bg=UniFiBlue, fg=white} 
+\setbeamercolor{frametitle}{bg=UniFiBlue, fg=white}
+\setbeamercolor{item projected}{bg=UniFiBlue, fg=white}
+
 \usefonttheme{professionalfonts}
 
 % --- INFORMAZIONI FRONTESPIZIO ---
-\title[Dinamiche di Apprendimento Profondo]{Analisi Empirica della Dinamica di Apprendimento: Double Descent, Neural Collapse e CKA}
+\title[Dinamiche di Apprendimento Profondo]{\textbf{Analisi Empirica della Dinamica di Apprendimento:}\\ Double Descent, Neural Collapse e CKA}
 \author[Marco Bardazzi]{Marco Bardazzi}
 \institute[UniFi]{
     \textbf{Università degli Studi di Firenze}\\
     Computer Vision and Intelligent Media Recognition\\
     \vspace{0.3cm}
-    
 }
 \date{\today}
 
 \begin{document}
 
 % ---------------------------------------------------
-% SLIDE 1: Titolo
-% ---------------------------------------------------
 \begin{frame}
     \titlepage
 \end{frame}
 
-% ---------------------------------------------------
-% SLIDE 2: Agenda
 % ---------------------------------------------------
 \begin{frame}{Agenda della Presentazione}
     \tableofcontents
@@ -61,44 +54,41 @@
 % ===================================================
 
 % ---------------------------------------------------
-% SLIDE 3: Oltre il Trade-off
-% ---------------------------------------------------
 \begin{frame}{Il Paradigma Moderno: Deep Double Descent}
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \textbf{La Teoria Classica:}
             \begin{itemize}
-                \item Trade-off Bias-Varianza a forma di "U".
-                \item Modelli troppo complessi (\textit{overparameterized}) memorizzano il rumore e falliscono sul test set (\textit{overfitting}).
+                \item Trade-off Bias-Varianza a forma di ``U''.
+                \item Modelli complessi memorizzano il rumore (``overfitting'').
             \end{itemize}
             \vspace{0.3cm}
             \textbf{La Realtà del Deep Learning:}
             \begin{itemize}
-                \item Superata la \textbf{soglia di interpolazione} (capacità limite), l'errore di test torna a scendere.
+                \item Superata la \textbf{soglia di interpolazione}, l'errore di test torna a scendere.
                 \item Modelli massivamente sovra-parametrizzati generalizzano in modo eccellente.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{center}
-                % Immagine illustrativa generica o ritaglio della tua
-                \includegraphics[width=0.9\textwidth, trim=0 500 1200 0, clip]{neural_collapse_cka_results.png}
-                \\ \scriptsize \textit{(Fig: Errore di Test al variare dei parametri)}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 1, Colonna 1 (Exp 1: Test Error)
+                \includegraphics[width=\linewidth]{1.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 1: Test Error\\ (Riga 1, Col 1)}}}
             \end{center}
         \end{column}
     \end{columns}
 \end{frame}
 
 % ---------------------------------------------------
-% SLIDE 4: Neural Collapse
-% ---------------------------------------------------
 \begin{frame}{Cos'è il Neural Collapse (NC)?}
-    Nelle fasi terminali dell'addestramento, le rappresentazioni nell'ultimo strato nascosto mostrano 4 proprietà geometriche sorprendenti (Papyan et al., 2020):
+    Nelle fasi terminali dell'addestramento, le rappresentazioni dell'ultimo strato mostrano 4 proprietà geometriche (Papyan et al., 2020):
     \vspace{0.3cm}
     \begin{enumerate}
-        \item \textbf{NC1 (Variability Collapse):} Le attivazioni della stessa classe convergono verso il loro centro medio (varianza intra-classe $\to 0$).
-        \item \textbf{NC2 (Simplex ETF):} Le medie delle classi si dispongono simmetricamente nello spazio, massimizzando la distanza tra loro (Equiangular Tight Frame).
+        \item \textbf{NC1 (Variability Collapse):} Le attivazioni convergono verso il loro centro di classe (varianza intra-classe $\to 0$).
+        \item \textbf{NC2 (Simplex ETF):} I centri delle classi si dispongono simmetricamente, massimizzando la distanza (Equiangular Tight Frame).
         \item \textbf{NC3 (Self-Duality):} I pesi del classificatore lineare si allineano perfettamente ai centri di classe.
-        \item \textbf{NC4 (NCC):} Le previsioni della rete sono identiche a quelle basate sulla distanza dal centro di classe più vicino.
+        \item \textbf{NC4 (NCC):} Le previsioni della rete coincidono con una classificazione Nearest Class Center.
     \end{enumerate}
 \end{frame}
 
@@ -107,18 +97,16 @@
 % ===================================================
 
 % ---------------------------------------------------
-% SLIDE 5: Metodologia
-% ---------------------------------------------------
 \begin{frame}{Setup Sperimentale}
     \textbf{Obiettivo:} Unire empiricamente Double Descent, Neural Collapse e analisi delle similarità tra strati (CKA).
     
     \vspace{0.3cm}
     \begin{itemize}
-        \item \textbf{Dataset:} MNIST-1D. Dati a bassa dimensionalità ma con proprietà morfologiche simili a quelle delle immagini.
-        \item \textbf{Rumore introdotto:} \textcolor{red}{\textbf{20\% Label Noise}}. Fondamentale per esacerbare il picco di interpolazione (forza la rete a memorizzare etichette errate).
+        \item \textbf{Dataset:} MNIST-1D. Dati a bassa dimensionalità ma morfologicamente complessi.
+        \item \textbf{Rumore introdotto:} \textcolor{red}{\textbf{20\% Label Noise}}. Forza la rete a memorizzare etichette errate, esacerbando il picco di interpolazione.
         \item \textbf{Architetture:} \texttt{ResNet1D} e \texttt{StandardCNN1D}.
-        \item \textbf{Scaling:} Larghezza (\textit{width}) variabile da $W=2$ a $W=64$, portando il modello da $10^2$ a $10^5$ parametri.
-        \item \textbf{Ottimizzatori:} Confronto tra SGD (con momento e Cosine Annealing) e Adam.
+        \item \textbf{Scaling:} Larghezza variabile da $W=2$ a $W=64$ ($10^2 \to 10^5$ param).
+        \item \textbf{Ottimizzatori:} SGD vs Adam.
     \end{itemize}
 \end{frame}
 
@@ -127,45 +115,85 @@
 % ===================================================
 
 % ---------------------------------------------------
-% SLIDE 6: Exp 1 - DD e NC
-% ---------------------------------------------------
-\begin{frame}{Risultati: Double Descent e Rottura del Collapse}
-    \begin{itemize}
-        \item Attorno ai $10^3-10^4$ parametri, l'Errore di Test presenta il \textbf{picco critico}. Il modello usa tutta la sua capacità per memorizzare il 20\% di rumore.
-        \item \textbf{Scoperta chiave:} L'errore di generalizzazione correla perfettamente con la metrica \textbf{NC1}. Nel regime critico, la varianza intra-classe esplode.
-        \item Nel regime sovra-parametrizzato ($>10^4$ param), il Neural Collapse si ripristina: lo spazio latente si riorganizza geometricamente.
-    \end{itemize}
+\begin{frame}{Risultati: La Rottura del Collapse nel Regime Critico}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item L'errore di generalizzazione correla perfettamente con la metrica \textbf{NC1}.
+                \item Attorno ai $10^3-10^4$ parametri, la varianza intra-classe esplode. Il modello rompe la sua geometria per memorizzare il rumore.
+                \item Superata la soglia ($>10^4$), il Neural Collapse si ripristina e l'errore crolla.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 1, Colonna 2 (Exp 1: NC1)
+                 \includegraphics[width=\linewidth]{2.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 1: NC1 (Variability)\\ (Riga 1, Col 2)}}}
+            \end{center}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 % ---------------------------------------------------
-% SLIDE 7: SGD vs Adam
-% ---------------------------------------------------
-\begin{frame}{L'Impatto dell'Ottimizzatore: SGD domina}
-    \begin{itemize}
-        \item Dai grafici si nota una netta distinzione tra ottimizzatori nel regime "overparameterized".
-        \item \textbf{SGD:} Mostra un Double Descent più morbido e raggiunge metriche di Neural Collapse (NC2, NC3) nettamente migliori (valori prossimi allo zero).
-        \item \textbf{Adam:} Spesso si ferma in minimi locali "peggiori" geometricamente.
-        \item \textbf{Spiegazione:} SGD possiede un \textit{bias induttivo implicito} che penalizza la norma dei pesi e favorisce confini decisionali ampi e simmetrici (massimo margine).
-    \end{itemize}
+\begin{frame}{L'Impatto dell'Ottimizzatore: SGD domina Adam}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Nel regime ``overparameterized'', \textbf{SGD} raggiunge configurazioni geometriche (NC2) molto migliori.
+                \item \textbf{Adam} tende a bloccarsi in minimi locali sub-ottimali dal punto di vista geometrico.
+                \item \textbf{Perché?} SGD possiede un \textit{bias induttivo implicito} che penalizza la norma dei pesi e favorisce margini ampi e simmetrici.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 1, Colonna 3 (Exp 1: NC2)
+                 \includegraphics[width=\linewidth]{3.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 1: NC2 (Simplex ETF)\\ (Riga 1, Col 3)}}}
+            \end{center}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 % ---------------------------------------------------
-% SLIDE 8: Esp 3 - I limiti del Simplex ETF
+\begin{frame}{Le Dinamiche di Addestramento (Epoch-wise)}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            Confronto tra due configurazioni:
+            \vspace{0.2cm}
+            \begin{itemize}
+                \item \textbf{Critical ($W=12$):} Posto sul picco del Double Descent. La superficie di perdita è frammentata, portando a enormi oscillazioni dell'errore.
+                \item \textbf{Large ($W=64$):} La capacità in eccesso permette un apprendimento rapido delle feature robuste, relegando la memorizzazione del rumore senza distruggere la generalizzazione.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 2, Colonna 2 (Exp 2: Epoch-wise Test Error)
+                 \includegraphics[width=\linewidth]{4.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 2: Epoch-wise Error\\ (Riga 2, Col 2)}}}
+            \end{center}
+        \end{column}
+    \end{columns}
+\end{frame}
+
 % ---------------------------------------------------
 \begin{frame}{I Limiti Dimensionali del Neural Collapse}
     \begin{columns}
-        \begin{column}{0.6\textwidth}
-            La matematica ci dice che, per ospitare un Simplex ETF perfetto con $K$ classi, lo spazio deve avere dimensione $d \ge K-1$.
-            \vspace{0.3cm}
+        \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item In MNIST-1D abbiamo $K=10$ classi.
-                \item Ci aspettiamo il collasso solo per dimensioni latenti $d \ge 9$.
-                \item Variando la dimensione finale $d$ di una ResNet, la metrica \textbf{NC2 crolla verticalmente esattamente a $d=9$}, confermando la teoria in modo magistrale.
+                \item Matematicamente, un Simplex ETF perfetto con $K$ classi richiede una dimensione latente \textbf{$d \ge K-1$}.
+                \item Per MNIST-1D ($K=10$), ci aspettiamo il collasso a partire da $d=9$.
+                \item \textbf{Verifica Empirica:} NC2 crolla verticalmente e si stabilizza a zero esattamente in corrispondenza del limite teorico.
             \end{itemize}
         \end{column}
-        \begin{column}{0.4\textwidth}
+        \begin{column}{0.5\textwidth}
             \begin{center}
-                 \includegraphics[width=\textwidth, trim=800 250 200 650, clip]{neural_collapse_cka_results.png}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 2, Colonna 4 (Exp 3: Gen NC NC2 vs dim)
+                 \includegraphics[width=\linewidth]{5.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 3: NC2 vs dim\\ (Riga 2, Col 4)}}}
             \end{center}
         \end{column}
     \end{columns}
@@ -176,57 +204,71 @@
 % ===================================================
 
 % ---------------------------------------------------
-% SLIDE 9: Intro CKA
-% ---------------------------------------------------
-\begin{frame}{Come evolve la Rete all'interno? Il CKA}
-    \textbf{CKA (Centered Kernel Alignment)} è una metrica ($0 \to 1$) che misura la similarità tra due spazi di attivazioni, essendo invariante a rotazioni ortogonali e allo scaling.
-    
-    \vspace{0.3cm}
-    Abbiamo usato il CKA per rispondere a 3 domande:
-    \begin{enumerate}
-        \item Reti "piccole" e "grandi" imparano le stesse cose? (\textit{Cross-Architettura})
-        \item Come cambiano le rappresentazioni nel tempo? (\textit{Epoch-wise Drift})
-        \item Se cambio il seed casuale iniziale, ottengo la stessa geometria? (\textit{Cross-Seed Reproducibility})
-    \end{enumerate}
-\end{frame}
-
-% ---------------------------------------------------
-% SLIDE 10: Risultati CKA - Cross-Arch
-% ---------------------------------------------------
 \begin{frame}{CKA: Differenze Strutturali (Small vs Large)}
-    Confrontando una rete critica ($W=8$) e una sovra-parametrizzata ($W=64$):
-    \vspace{0.3cm}
-    \begin{itemize}
-        \item \textbf{Primi Strati (L0, L1):} CKA moderato/alto ($\approx 0.9 - 0.6$). Entrambi i modelli estraggono feature a basso livello simili (frequenze, bordi base del segnale 1D).
-        \item \textbf{Strati Profondi (L3):} CKA crolla ($\approx 0.34$).
-        \item \textbf{Perché?} Il modello piccolo fallisce nel separare le classi (manca di gradi di libertà per collassare), mentre il grande riesce a formare un Simplex ETF. Le topologie prima del classificatore sono quindi diametralmente opposte.
-    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{CKA:} Misura la similarità geometrica ($0 \to 1$).
+            \vspace{0.2cm}
+            \begin{itemize}
+                \item \textbf{L0/L1:} CKA elevato. Reti critiche e sovra-parametrizzate estraggono le stesse feature a basso livello.
+                \item \textbf{L3 (Profondo):} CKA crolla ($\approx 0.34$).
+                \item Il modello piccolo non ha i gradi di libertà per creare il Simplex ETF, generando una topologia finale diametralmente opposta.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 3, Colonna 1 (Exp 4A: Heatmap CKA)
+                 \includegraphics[width=\linewidth]{6.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 4A: Heatmap\\ (Riga 3, Col 1)}}}
+            \end{center}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 % ---------------------------------------------------
-% SLIDE 11: Risultati CKA - Drift ed Epoche
-% ---------------------------------------------------
-\begin{frame}{CKA: La Deriva delle Rappresentazioni (Epoch Drift)}
-    Confrontando le attivazioni durante il training rispetto alla prima epoca:
-    \vspace{0.3cm}
-    \begin{itemize}
-        \item \textbf{Lo Stem (L0)} converge quasi subito. I filtri di convoluzione primari non necessitano di grandi aggiornamenti.
-        \item \textbf{Gli strati profondi (L2, L3)} subiscono una deriva costante e massiccia (\textit{drift}).
-        \item Anche quando la loss di classificazione è quasi zero, lo spazio latente in L3 continua a modificarsi per migliaia di epoche, guidato dalla compressione della varianza tipica del Neural Collapse.
-    \end{itemize}
+\begin{frame}{CKA: La Deriva nel Tempo (Epoch Drift)}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            Confronto delle attivazioni epoche successive rispetto all'epoca 1:
+            \vspace{0.2cm}
+            \begin{itemize}
+                \item \textbf{Stem (L0):} Converge subito (CKA costante vicino a 1).
+                \item \textbf{Layer Profondi (L2, L3):} Deriva continua (drift). Lo spazio latente si riorganizza per migliaia di epoche, spinto dalla minimizzazione della varianza intra-classe.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 3, Colonna 2 (Exp 4B: CKA Line chart)
+                 \includegraphics[width=\linewidth]{7.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 4B: Epoch-wise\\ (Riga 3, Col 2)}}}
+            \end{center}
+        \end{column}
+    \end{columns}
 \end{frame}
 
-% ---------------------------------------------------
-% SLIDE 12: Risultati CKA - Degenerazione Geometrica
 % ---------------------------------------------------
 \begin{frame}{CKA: Riproducibilità e Degenerazione Geometrica}
-    Addestrando lo stesso modello identico, cambiando solo il Seed iniziale:
-    \vspace{0.3cm}
-    \begin{itemize}
-        \item L0 è quasi deterministico (CKA $\approx 0.97$).
-        \item \textbf{L3 ha un CKA di appena $0.59$.}
-        \item \textbf{Il motivo:} Degenerazione dello spazio latente. Ci sono infiniti modi per ruotare uno spazio a $N$ dimensioni mantenendo un Simplex perfetto. Modelli con seed diversi convergono a "rotazioni isomorfiche" differenti: risolvono il problema allo stesso modo, ma le coordinate assolute dei neuroni non corrispondono.
-    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            Stesso modello ($W=32$), solo \textit{Seed casuali iniziali diversi}:
+            \vspace{0.2cm}
+            \begin{itemize}
+                \item L0 apprende feature deterministiche ($CKA = 0.97$).
+                \item \textbf{L3 varia molto ($CKA = 0.59$).}
+                \item \textbf{Degenerazione Geometrica:} Esistono infinite rotazioni ortogonali per creare un Simplex perfetto. Le reti convergono a soluzioni logicamente isomorfe, ma in coordinate assolute diverse.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                % --- INSERISCI QUI L'IMMAGINE ---
+                % Ritaglia dal file originale: Riga 3, Colonna 3 (Exp 4C: Bar chart)
+                 \includegraphics[width=\linewidth]{8.png}
+                %\fcolorbox{gray}{lightgray}{\parbox[c][5cm][c]{0.9\linewidth}{\centering \textbf{INSERISCI QUI:\\ Exp 4C: Cross-Seed\\ (Riga 3, Col 3)}}}
+            \end{center}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 % ===================================================
@@ -234,18 +276,14 @@
 % ===================================================
 
 % ---------------------------------------------------
-% SLIDE 13: Conclusioni
-% ---------------------------------------------------
 \begin{frame}{Conclusioni}
     \begin{enumerate}
-        \item \textbf{Il legame Empirico:} Il fenomeno del Double Descent è intimamente legato alla distruzione e successiva ricostruzione del Neural Collapse nel regime sovra-parametrizzato.
-        \item \textbf{Ottimizzazione:} SGD, grazie al suo bias implicito di regolarizzazione, risulta decisivo per la convergenza verso un Simplex ETF perfetto rispetto ad Adam.
-        \item \textbf{Geometria Profonda:} L'analisi CKA rivela che la rete non apprende uniformemente. Gli strati iniziali fungono da estrattori statici, mentre l'ultimo strato compie una complessa e continua danza per comprimere lo spazio e massimizzare i margini geometrici.
+        \item \textbf{Il legame Empirico:} Il fenomeno del Double Descent è intimamente legato alla rottura (nel regime critico) e successiva ricostruzione (nel regime massivo) del Neural Collapse.
+        \item \textbf{Ottimizzazione:} SGD domina Adam, fungendo da regolarizzatore implicito che guida le reti verso un Simplex ETF perfetto.
+        \item \textbf{Geometria Profonda:} Il CKA ha rivelato la disomogeneità dell'apprendimento. Mentre i primi strati sono statici e deterministici, l'ultimo strato degenera geometricamente compiendo una lenta riorganizzazione per massimizzare i margini.
     \end{enumerate}
 \end{frame}
 
-% ---------------------------------------------------
-% SLIDE 14: Q&A
 % ---------------------------------------------------
 \begin{frame}
     \begin{center}
